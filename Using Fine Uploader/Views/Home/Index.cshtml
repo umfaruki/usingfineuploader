@@ -1,0 +1,89 @@
+﻿@section header
+{
+    
+<link href="~/Content/fineup/fineuploader-3.9.1.min.css" rel="stylesheet" />
+}
+<div class="jumbotron">
+    <h1>Fine Uploader to Azure Example</h1>
+    <p class="lead">Example to show you how to updload a file using Ajax to Azure blob</p>    
+</div>
+
+<p>let's try your browser: (<span id="browserName"></span>)</p>
+<p>please select a JPG file no larger than 5MB to upload</p>
+
+<div id="jquery-wrapped-fine-uploader"></div>
+
+<button id="uploadButton" type="button" class="btn btn-primary" onclick="uploadFile()">upload file</button>
+
+<div id="done"></div>
+<div id="done2"></div>
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/fineup")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#uploadButton').hide();  //Hide the upload button until the user selects a file.
+            var agent = self.navigator.userAgent;
+            $('#browserName').text(agent);
+            
+            //Different end points depending on the browser
+            var endPoint = '/api/photos/FineUpload';
+            if (!isFileAPIEnabled()) {
+                endPoint = '/api/photos/FineUploadIe9';
+            }
+            
+            $('#jquery-wrapped-fine-uploader').fineUploader({
+                autoUpload: false,  //The default is to upload a file as soon as it is selected. For this example, I'm taking control of that.
+                request: {
+                    endpoint: endPoint, //Set depending on the browser's capabilities
+                    forceMulipart: true,
+                    customHeaders: {
+                        Accept: 'application/json'
+                    },
+                },
+                text: {
+                    uploadButton: '<div><span class="glyphicon glyphicon-upload"></span> select a file</div>'
+                },
+                camera: { ios: true },
+                validation: {
+                    acceptFiles: 'image/jpeg',
+                    allowedExtensions: ['jpg', 'jpeg'],                    
+                    sizeLimit: 1024 * 1024 * 5  //5MB
+                },
+                callbacks: {
+                    onComplete: function (id, fileName, response) {
+                        //This callback happens when the file is done uploading
+                        $('#done').html('file from server: ' + response.fileName);
+                        $('#done2').html('agent eched: ' + response.echoAgent);
+                        $('#uploadButton').hide();
+                    },
+                    onSubmit: function (id, fileName) {
+                        //This callback happens when the file is selected.
+                        //I show the upload button here.
+                        $('#uploadButton').show();
+                    },
+                    onStatusChange: function (id, oldStatus, newStatus) {
+                        //If the user canceled the upload, I hide the button.
+                        if (newStatus === "canceled") {
+                            $('#uploadButton').hide();
+                        }
+                    }
+                }
+            });
+            //Send the agent name to the server
+            $('#jquery-wrapped-fine-uploader').fineUploader('setParams', { 'myagent': agent });
+        });
+
+        function uploadFile() {
+            $('#jquery-wrapped-fine-uploader').fineUploader('uploadStoredFiles');
+        }
+
+        //Does the browser support FileReader (HTML5)
+        function isFileAPIEnabled() {
+            return !!window.FileReader;
+        }
+    </script>
+}
+
