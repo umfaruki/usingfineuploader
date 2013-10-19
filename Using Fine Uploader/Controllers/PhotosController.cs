@@ -85,7 +85,7 @@ namespace Using_Fine_Uploader.Controllers
                     var info = new FileInfo(fileData.LocalFileName);
                     //Look for the piece with name qqfile. That's the piece that contains the 
                     //file we want to upload
-                    if (name.IndexOf("qqfile", StringComparison.InvariantCultureIgnoreCase) > -1)
+                    if (name == "\"qqfile\"")
                     {
                         var fileName = info.Name;
                         var blob = container.GetBlockBlobReference(fileName + ".jpg");
@@ -97,7 +97,7 @@ namespace Using_Fine_Uploader.Controllers
                     }
                         //Look for the piece wiht the name 'myagent'. That's the parameter we sent from 
                         //the client. The code doesn't do anything with it. I just wanted to show how that works.
-                    else if (name.IndexOf("myagent", StringComparison.InvariantCultureIgnoreCase) > -1)
+                    else if (name == "\"myagent\"")
                     {
                         using (var filestream = new StreamReader(fileData.LocalFileName))
                         {
