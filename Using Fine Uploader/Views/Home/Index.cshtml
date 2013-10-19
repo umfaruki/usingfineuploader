@@ -33,12 +33,11 @@
             if (!isFileAPIEnabled()) {
                 endPoint = '/api/photos/FineUploadIe9';
             }
-            
+
             $('#jquery-wrapped-fine-uploader').fineUploader({
                 autoUpload: false,  //The default is to upload a file as soon as it is selected. For this example, I'm taking control of that.
                 request: {
-                    endpoint: endPoint, //Set depending on the browser's capabilities
-                    forceMulipart: true,
+                    endpoint: endPoint, //Set depending on the browser's capabilities                    
                     customHeaders: {
                         Accept: 'application/json'
                     },
@@ -49,27 +48,22 @@
                 camera: { ios: true },
                 validation: {
                     acceptFiles: 'image/jpeg',
-                    allowedExtensions: ['jpg', 'jpeg'],                    
+                    allowedExtensions: ['jpg', 'jpeg'],
                     sizeLimit: 1024 * 1024 * 5  //5MB
-                },
-                callbacks: {
-                    onComplete: function (id, fileName, response) {
-                        //This callback happens when the file is done uploading
-                        $('#done').html('file from server: ' + response.fileName);
-                        $('#done2').html('agent eched: ' + response.echoAgent);
-                        $('#uploadButton').hide();
-                    },
-                    onSubmit: function (id, fileName) {
-                        //This callback happens when the file is selected.
-                        //I show the upload button here.
-                        $('#uploadButton').show();
-                    },
-                    onStatusChange: function (id, oldStatus, newStatus) {
-                        //If the user canceled the upload, I hide the button.
-                        if (newStatus === "canceled") {
-                            $('#uploadButton').hide();
-                        }
-                    }
+                }
+            }).on('complete', function(event, id, fileName, response) {
+                //This callback happens when the file is done uploading
+                $('#done').html('file from server: ' + response.fileName);
+                $('#done2').html('agent eched: ' + response.echoAgent);
+                $('#uploadButton').hide();
+            }).on('submit', function(event, id, fileName) {
+                //This callback happens when the file is selected.
+                //I show the upload button here.
+                $('#uploadButton').show();
+            }).on('statusChange', function(event, id, oldStatus, newStatus) {
+                //If the user canceled the upload, I hide the button.
+                if (newStatus === 'canceled') {
+                    $('#uploadButton').hide();
                 }
             });
             //Send the agent name to the server
