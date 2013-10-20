@@ -24,13 +24,8 @@ namespace Using_Fine_Uploader.Controllers
         [ActionName("FineUpload")]
         public async Task<FineUpload> FineUpload()
         {
-            //When you upload a file to Azure via the web role, it will be stored in its
-            //temporary storage. You need to understand that this storage is limited 
-            //and also is transient if the web role gets destroyed. You need to take the file
-            //from there ASAP. We do that in the same call and save it to blob storage.
-            var provider = new MultipartFileStreamProvider(Path.GetTempPath());
 
-            var fineUpload = await ProcessData(provider);            
+            var fineUpload = await ProcessData();            
 
             return fineUpload;
         }
@@ -46,14 +41,13 @@ namespace Using_Fine_Uploader.Controllers
         [ActionName("FineUploadIe9")]
         public async Task<HttpResponseMessage> FineUploadIe9()
         {            
-            var provider = new MultipartFileStreamProvider(Path.GetTempPath());
+            
+            var fineUpload = await ProcessData();
 
-            var fineUpload = await ProcessData(provider);
-
-            var res = new HttpResponseMessage(HttpStatusCode.OK);
-
-            var classString = DynamicJson.Serialize(fineUpload);
-            res.Content = new StringContent(classString, Encoding.UTF8, "text/plain");
+            var res = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(DynamicJson.Serialize(fineUpload), Encoding.UTF8, "text/plain")
+            };
             return res;
         }
 
@@ -62,13 +56,18 @@ namespace Using_Fine_Uploader.Controllers
         /// </summary>
         /// <param name="provider"></param>
         /// <returns></returns>
-        private async Task<FineUpload> ProcessData(MultipartFileStreamProvider provider)
+        private async Task<FineUpload> ProcessData()
         {
             var fineUpload = new FineUpload();            
             var agent = string.Empty;
 
             try
-            {                                
+            {
+                //When you upload a file to Azure via the web role, it will be stored in its
+                //temporary storage. You need to understand that this storage is limited 
+                //and also is transient if the web role gets destroyed. You need to take the file
+                //from there ASAP. We do that in the same call and save it to blob storage.
+                var provider = new MultipartFileStreamProvider(Path.GetTempPath());              
                 await Request.Content.ReadAsMultipartAsync(provider);
 
                 // snipped validation code

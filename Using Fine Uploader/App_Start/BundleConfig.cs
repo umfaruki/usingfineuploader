@@ -22,7 +22,7 @@ namespace Using_Fine_Uploader
 
             bundles.Add(new ScriptBundle("~/bundles/fineup")
                 .Include("~/Scripts/fineup/jquery.fineuploader-3.9.1.js")
-                .Include("~/Scripts/fineup/iframe.xss.response-3.9.1.js"));
+                );
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
